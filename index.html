@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="UTF-8">
+	<title>Drag & Drop Images and Preview with localSotorage</title>
+	<style>
+		#dropbox {
+			width: 300px;
+			height: 300px;
+			border: 1px solid #888;
+			margin: 5px;
+		}
+		#imglist img {
+			width: 100px;
+			height: 100px;
+			margin: 5px;
+		}
+	</style>
+</head>
+<body>
+	<div class="wrap">
+		<div>
+			<button onclick="init()">초기화(initialize)</button>
+			<button onclick="location.reload()">새로고침(reload)</button>
+		</div>
+		<div id="dropbox" ondrop="drop(event)" ondragover="dragover(event)" ondragleave="dragleave(event)">
+			Drop Images Here
+		</div>
+		<div id="imglist"></div>
+	</div>
+	
+	<script>
+
+		var imagesArray = [];
+
+		function drop(e){
+			e.preventDefault();
+			var data = e.dataTransfer;
+			var files = data.files;
+
+			if( files ) {
+				for(i=0;i<files.length;i++){
+					if( files[i].type == "image/jpeg" || files[i].type == "image/gif" || files[i].type == "image/png") {
+						addimages(files[i]);
+					}
+				}
+			}
+		}
+
+		function addimages(file){
+			var reader = new FileReader();
+			reader.addEventListener("load",function(){
+				var tmpimg = "<img src='" + reader.result + "'>";
+				document.getElementById("imglist").innerHTML += tmpimg;
+				imagesArray.push(reader.result);
+				localStorage.setItem("storedImages",JSON.stringify(imagesArray));
+			},false);
+			if( file ) reader.readAsDataURL(file);
+		}	
+		
+		function dragover(e){
+			e.preventDefault();
+			var tagetId = e.target.id;	document.getElementById(tagetId).style.background = "pink";
+		}	
+
+		function dragleave(e){
+			e.preventDefault();
+			var tagetId = e.target.id;	document.getElementById(tagetId).style.background = "white";
+		}			
+		
+		window.onunload = function(){
+			//do something
+		}
+		
+		window.onload = function(){
+			var imagesArrayload = localStorage.getItem("storedImages");
+			if( imagesArrayload ) {
+				var imgarr = JSON.parse(imagesArrayload);
+				for( i=0; i<imgarr.length; i++){
+					var tmpimg = "<img src='" + imgarr[i] + "'>";
+					document.getElementById("imglist").innerHTML += tmpimg;
+					imagesArray.push(imgarr[i]);
+				}
+			}
+		}
+
+		function init(){
+			while (imagesArray.length) { imagesArray.pop(); }
+			localStorage.clear();
+			document.getElementById("imglist").innerHTML = "";
+		}
+
+	</script>
+	<!--
+	Drag & Drop으로 한 개 또는 여러 개의 이미지 파일 등록 후 미리보기 썸네일 보여주고 localStorage에 저장하여
+	페이지를 다시 열었을 때 이 전에 등록한 이미지 썸네일 다시 보는 소스 코드
+
+	[주의]
+	이 코드는 단지 image drag & drop과 로컬 스토리지 활용을 위한 연습용 코드임. 
+	따라서 실전에서는 사용하기 어려울 수도 있음. 
+	예들 들어 브라우저마다 localStorage 허용 용량이 정해져 있을 수 있으므로 이 부분은 감수해야 함. 
+	(참고:http://www.html5rocks.com/en/tutorials/offline/quota-research/)
+
+	[응용과제]
+	위와 같은 Drag & Drop 을 활용한 서버로의 파일 업로드 코드 작성 시 참고 가능
+	(참고:https://css-tricks.com/drag-and-drop-file-uploading/)
+
+
+	This code is just for testing how to drop images on a web page and show thumbnails. 
+	And show how to store image data in the localStorage and how to reuse it. 
+
+
+	Jul 07 2016
+	code by Ryu
+	-->
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
